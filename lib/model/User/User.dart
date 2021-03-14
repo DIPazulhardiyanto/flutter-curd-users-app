@@ -4,7 +4,8 @@
 
 import 'dart:convert';
 
-UserResult userResultFromJson(String str) => UserResult.fromJson(json.decode(str));
+UserResult userResultFromJson(String str) =>
+    UserResult.fromJson(json.decode(str));
 
 String userResultToJson(UserResult data) => json.encode(data.toJson());
 
@@ -22,18 +23,18 @@ class UserResult {
   Data data;
 
   factory UserResult.fromJson(Map<String, dynamic> json) => UserResult(
-    message: json["message"],
-    error: json["error"],
-    code: json["code"],
-    data: Data.fromJson(json["data"]),
-  );
+        message: json["message"],
+        error: json["error"],
+        code: json["code"],
+        data: Data.fromJson(json["data"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "message": message,
-    "error": error,
-    "code": code,
-    "data": data.toJson(),
-  };
+        "message": message,
+        "error": error,
+        "code": code,
+        "data": data.toJson(),
+      };
 }
 
 class Data {
@@ -50,18 +51,19 @@ class Data {
   int currentPage;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    totalItems: json["totalItems"],
-    rows: List<UserList>.from(json["rows"].map((x) => UserList.fromJson(x))),
-    totalPages: json["totalPages"],
-    currentPage: json["currentPage"],
-  );
+        totalItems: json["totalItems"],
+        rows:
+            List<UserList>.from(json["rows"].map((x) => UserList.fromJson(x))),
+        totalPages: json["totalPages"],
+        currentPage: json["currentPage"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "totalItems": totalItems,
-    "rows": List<dynamic>.from(rows.map((x) => x.toJson())),
-    "totalPages": totalPages,
-    "currentPage": currentPage,
-  };
+        "totalItems": totalItems,
+        "rows": List<dynamic>.from(rows.map((x) => x.toJson())),
+        "totalPages": totalPages,
+        "currentPage": currentPage,
+      };
 }
 
 class UserList {
@@ -114,56 +116,57 @@ class UserList {
   dynamic deletedAt;
 
   factory UserList.fromJson(Map<String, dynamic> json) => UserList(
-    id: json["id"],
-    name: json["name"],
-    username: json["username"],
-    email: json["email"],
-    password: json["password"],
-    token: json["token"],
-    refreshToken: json["refreshToken"],
-    role: json["role"],
-    address: json["address"],
-    phoneNumber: json["phoneNumber"],
-    addressImage: json["addressImage"],
-    status: json["status"],
-    dateOfBirth: json["dateOfBirth"],
-    placeOfBirth: json["placeOfBirth"],
-    idCard: json["idCard"],
-    gender: json["gender"],
-    religions: json["religions"],
-    ages: json["ages"],
-    postalCode: json["postalCode"],
-    createdAt: json["createdAt"],
-    updatedAt: json["updatedAt"],
-    deletedAt: json["deletedAt"],
-  );
+        id: json["id"],
+        name: json["name"],
+        username: json["username"],
+        email: json["email"],
+        password: json["password"],
+        token: json["token"],
+        refreshToken: json["refreshToken"],
+        role: json["role"],
+        address: json["address"],
+        phoneNumber: json["phoneNumber"],
+        addressImage: json["addressImage"],
+        status: json["status"],
+        dateOfBirth: json["dateOfBirth"],
+        placeOfBirth: json["placeOfBirth"],
+        idCard: json["idCard"],
+        gender: json["gender"],
+        religions: json["religions"],
+        ages: json["ages"],
+        postalCode: json["postalCode"],
+        createdAt: json["createdAt"],
+        updatedAt: json["updatedAt"],
+        deletedAt: json["deletedAt"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-    "username": username,
-    "email": email,
-    "password": password,
-    "token": token,
-    "refreshToken": refreshToken,
-    "role": role,
-    "address": address,
-    "phoneNumber": phoneNumber,
-    "addressImage": addressImage,
-    "status": status,
-    "dateOfBirth": dateOfBirth,
-    "placeOfBirth": placeOfBirth,
-    "idCard": idCard,
-    "gender": gender,
-    "religions": religions,
-    "ages": ages,
-    "postalCode": postalCode,
-    "createdAt": createdAt,
-    "updatedAt": updatedAt,
-    "deletedAt": deletedAt,
-  };
+        "id": id,
+        "name": name,
+        "username": username,
+        "email": email,
+        "password": password,
+        "token": token,
+        "refreshToken": refreshToken,
+        "role": role,
+        "address": address,
+        "phoneNumber": phoneNumber,
+        "addressImage": addressImage,
+        "status": status,
+        "dateOfBirth": dateOfBirth,
+        "placeOfBirth": placeOfBirth,
+        "idCard": idCard,
+        "gender": gender,
+        "religions": religions,
+        "ages": ages,
+        "postalCode": postalCode,
+        "createdAt": createdAt,
+        "updatedAt": updatedAt,
+        "deletedAt": deletedAt,
+      };
 }
-// List<UserList> usersFromJson(String jsonData) {
-//   final data = json.decode(jsonData);
-//   return List<UserList>.from(data.map((item) => UserList.fromJson(item)));
-// }
+
+String UsersToJson(UserList data) {
+  final jsonData = data.toJson();
+  return json.encode(jsonData);
+}

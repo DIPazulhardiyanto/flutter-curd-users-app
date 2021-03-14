@@ -1,14 +1,19 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sportsapp/model/User/User.dart';
 import 'package:sportsapp/service/ApiService.dart';
+import 'package:sportsapp/view/addMenu.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
+
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   ApiService _apiService;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
 
   @override
   void initState() {
@@ -19,37 +24,54 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.amber[800].withOpacity(0.5),
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          "Home Screen",
-          style: TextStyle(color: Colors.white),
+    return RefreshIndicator(
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: AppBar(
+            backgroundColor: Colors.amber[800].withOpacity(0.5),
+            iconTheme: IconThemeData(color: Colors.white),
+            title: Text(
+              "Home Screen",
+              style: TextStyle(color: Colors.white),
+            ),
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FormAddScreen()));
+                  })
+            ],
+          ),
+          body: Center(
+              child: FutureBuilder(
+            future: _apiService.getUsers(),
+            builder:
+                (BuildContext context, AsyncSnapshot<UserResult> snapshot) {
+              if (snapshot.hasError) {
+                return ErrorMessage();
+              } else if (snapshot.connectionState == ConnectionState.done) {
+                List<UserList> listUser = snapshot.data.data.rows;
+                return _buildUserList(listUser);
+              } else {
+                return CircularProgressIndicator();
+              }
+            },
+          )),
         ),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('This is a snackbar')));
-              })
-        ],
-      ),
-      body: Center(
-          child: FutureBuilder(
-        future: _apiService.getUsers(),
-        builder: (BuildContext context, AsyncSnapshot<UserResult> snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text("Something Wrong Message"),
-            );
-          } else if (snapshot.connectionState == ConnectionState.done) {
-            List<UserList> listUser = snapshot.data.data.rows;
-            return _buildUserList(listUser);
-          }
-        },
-      )),
+        onRefresh: () async {
+          _apiService
+              .getUsers()
+              .then((value) => {setState(() => value.data.rows)});
+        }
+        );
+  }
+
+  Widget ErrorMessage() {
+    return Center(
+      child: Text('No Content InSide'),
     );
   }
 
