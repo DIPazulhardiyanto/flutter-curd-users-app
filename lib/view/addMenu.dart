@@ -7,6 +7,10 @@ import 'package:sportsapp/view/home.dart';
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class FormAddScreen extends StatefulWidget {
+  UserList userList;
+
+  FormAddScreen({this.userList});
+
   @override
   _FormAddScreenState createState() => _FormAddScreenState();
 }
@@ -22,13 +26,25 @@ class _FormAddScreenState extends State<FormAddScreen> {
   TextEditingController _controllerPassword = TextEditingController();
 
   @override
+  void initState() {
+    if (widget.userList != null) {
+      _isFieldNameValid = true;
+      _isFieldEmailValid = true;
+      _isFieldPasswordValid = true;
+      _controllerName.text = widget.userList.name;
+      _controllerEmail.text = widget.userList.email;
+      _controllerPassword.text = widget.userList.password;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldState,
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
         title: Text(
-          "Form Add",
+          widget.userList == null ? 'Form Add' : 'Changes Data',
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -41,7 +57,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
               children: <Widget>[
                 nameField(),
                 emailField(),
-                passwordField(),
+                widget.userList == null ? passwordField() : Container(),
                 Padding(
                   padding: EdgeInsets.only(top: 8.0),
                   child: RaisedButton(
@@ -65,20 +81,37 @@ class _FormAddScreenState extends State<FormAddScreen> {
                       String password = _controllerPassword.text.toString();
                       UserList listUser = UserList(
                           name: name, email: email, password: password);
-                      _apiService
-                          .createProfile(listUser.toJson())
-                          .then((isSuccess) {
-                        setState(() => _isLoading = false);
-                        if (isSuccess) {
-                          Navigator.pop(_scaffoldState.currentState.context);
-                        } else {
-                          _scaffoldState.currentState.showSnackBar(
-                              SnackBar(content: Text("Submit Failed")));
-                        }
-                      });
+                      if (widget.userList == null) {
+                        _apiService
+                            .createProfile(listUser.toJson())
+                            .then((isSuccess) {
+                          setState(() => _isLoading = false);
+                          if (isSuccess) {
+                            Navigator.pop(_scaffoldState.currentState.context);
+                          } else {
+                            _scaffoldState.currentState.showSnackBar(
+                                SnackBar(content: Text("Submit Failed")));
+                          }
+                        });
+                      } else {
+                        listUser.id = widget.userList.id;
+                        _apiService
+                            .updateProfile(listUser)
+                            .then((isSuccess) {
+                          setState(() => _isLoading = false);
+                          if (isSuccess) {
+                            Navigator.pop(_scaffoldState.currentState.context);
+                          } else {
+                            _scaffoldState.currentState.showSnackBar(
+                                SnackBar(content: Text("update Failed")));
+                          }
+                        });
+                      }
                     },
                     child: Text(
-                      "Submit".toUpperCase(),
+                      widget.userList == null
+                          ? 'Submit'.toUpperCase()
+                          : 'Update'.toUpperCase(),
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -109,8 +142,6 @@ class _FormAddScreenState extends State<FormAddScreen> {
       ),
     );
   }
-
-
 
   Widget nameField() {
     return TextField(

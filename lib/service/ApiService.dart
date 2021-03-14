@@ -27,4 +27,25 @@ class ApiService {
       return false;
     }
   }
+
+  Future<bool> updateProfile(UserList data) async {
+    final String encodedData = json.encode(data);
+    final response = await client.put('$_endpoint/users/${data.id}',
+        headers: {"content-type": "application/json; charset=UTF-8"}, body: encodedData);
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> deleteProfile(UserList data) async {
+    final response = await client.delete('$_endpoint/users/${data.id}',
+        headers: {"content-type": "application/json; charset=UTF-8"});
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

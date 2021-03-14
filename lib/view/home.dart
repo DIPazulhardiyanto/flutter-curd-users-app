@@ -4,16 +4,16 @@ import 'package:sportsapp/model/User/User.dart';
 import 'package:sportsapp/service/ApiService.dart';
 import 'package:sportsapp/view/addMenu.dart';
 
+final GlobalKey<ScaffoldState> _scaffoldState = new GlobalKey<ScaffoldState>();
+
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
-
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   ApiService _apiService;
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
         child: Scaffold(
-          key: _scaffoldKey,
+          key: _scaffoldState,
           appBar: AppBar(
             backgroundColor: Colors.amber[800].withOpacity(0.5),
             iconTheme: IconThemeData(color: Colors.white),
@@ -65,8 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _apiService
               .getUsers()
               .then((value) => {setState(() => value.data.rows)});
-        }
-        );
+        });
   }
 
   Widget ErrorMessage() {
@@ -101,6 +100,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         FlatButton(
                           onPressed: () {
                             // TODO: do something in here
+                            // _apiService.deleteProfile(listUsers);
+                            _apiService
+                                .deleteProfile(listUsers)
+                                .then((isSuccess) {
+                              if (isSuccess) {
+                                _apiService.getUsers().then((value) =>
+                                    {setState(() => value.data.rows)});
+                                _scaffoldState.currentState.showSnackBar(
+                                    SnackBar(content: Text("Delete Success")));
+                              } else {
+                                _scaffoldState.currentState.showSnackBar(
+                                    SnackBar(content: Text("Delete Failed")));
+                              }
+                            });
                           },
                           child: Text(
                             "Delete",
@@ -109,6 +122,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         FlatButton(
                           onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        FormAddScreen(userList: listUsers)));
+
                             // TODO: do something in here
                           },
                           child: Text(
