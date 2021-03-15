@@ -3,8 +3,8 @@ import 'package:sportsapp/model/User/User.dart';
 import 'dart:convert';
 
 class ApiService {
-  // final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
-  final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
+  final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
+  // final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
 
   Client client = Client();
 
@@ -33,7 +33,8 @@ class ApiService {
   Future<bool> createProfile(data) async {
     final String encodedData = json.encode(data);
     final response = await client.post('$_endpoint/register',
-        headers: {"content-type": "application/json; charset=UTF-8"}, body: encodedData);
+        headers: {"content-type": "application/json; charset=UTF-8"},
+        body: encodedData);
     if (response.statusCode == 200) {
       return true;
     } else {
@@ -44,7 +45,8 @@ class ApiService {
   Future<bool> updateProfile(UserList data) async {
     final String encodedData = json.encode(data);
     final response = await client.put('$_endpoint/users/${data.id}',
-        headers: {"content-type": "application/json; charset=UTF-8"}, body: encodedData);
+        headers: {"content-type": "application/json; charset=UTF-8"},
+        body: encodedData);
     if (response.statusCode == 200) {
       return true;
     } else {

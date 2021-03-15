@@ -11,6 +11,10 @@ class GetUsers extends UserEvent {
   GetUsers({String query}) : super(query: query);
 }
 
+class GetUpdate extends UserEvent {
+  GetUpdate({UserList user}) : super(user: user);
+}
+
 class DeleteUser extends UserEvent {
   DeleteUser({UserList user}) : super(user: user);
 }

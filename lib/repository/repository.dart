@@ -11,4 +11,7 @@ class UserRepository {
   Future fetchDeleteUsers(UserList data) => _apiService.deleteProfile(data);
 
   Future fetchUpdateUsers(UserList data) => _apiService.updateProfile(data);
+
+  Future fetchCreateUsers(UserList data) => _apiService.createProfile(data);
+
 }
