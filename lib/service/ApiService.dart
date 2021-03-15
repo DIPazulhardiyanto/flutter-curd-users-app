@@ -3,8 +3,21 @@ import 'package:sportsapp/model/User/User.dart';
 import 'dart:convert';
 
 class ApiService {
-  final String _endpoint = "http://192.168.100.5:8000/auth";
+  // final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
+  final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
+
   Client client = Client();
+
+  Future<UserResult> getUserById(UserList data) async {
+    final response = await client.get('$_endpoint/users/${data.id}',
+        headers: {"content-type": "application/json; charset=UTF-8"});
+    if (response.statusCode == 200) {
+      Map valueMap = json.decode(response.body);
+      return UserResult.fromJson(valueMap);
+    } else {
+      return null;
+    }
+  }
 
   Future<UserResult> getUsers() async {
     final response = await client
