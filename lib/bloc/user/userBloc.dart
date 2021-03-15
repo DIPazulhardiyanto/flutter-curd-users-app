@@ -33,7 +33,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         yield UserErrorState(errorMessage: e.toString());
       }
     } else if (event is GetUpdate) {
-      print('GETUPDATE >>>');
       List<UserList> responseRow = [];
       yield UserListLoaded(rows: responseRow);
     }
