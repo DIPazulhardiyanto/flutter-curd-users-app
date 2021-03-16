@@ -2,145 +2,105 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sportsapp/bloc/user/bloc.dart';
 import 'package:sportsapp/model/User/User.dart';
+import 'package:sportsapp/repository/repository.dart';
+import 'package:sportsapp/service/ApiService.dart';
+import 'package:sportsapp/view/addMenu.dart';
+import 'dart:convert';
 
-class UserListScreen extends StatelessWidget {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+import 'package:sportsapp/view/usersScreen/cardListUser.dart';
+
+class UserScreen extends StatefulWidget {
+  final UserRepository userRepository;
+
+  UserScreen({this.userRepository});
+
+  @override
+  _UserScreenState createState() => _UserScreenState();
+}
+
+class _UserScreenState extends State<UserScreen> {
+  UserBloc userBloc;
+  TextEditingController _searchController = new TextEditingController();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
 
-  UserBloc userBloc;
-
-  TextEditingController _searchController = new TextEditingController();
-
   @override
   void initState() {
+    super.initState();
+    UserBloc(UserInitalezedState())..add(GetUsers());
+  }
 
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    userBloc = BlocProvider.of<UserBloc>(context);
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-          title: TextField(
-        controller: _searchController,
-        autocorrect: false,
-        decoration: InputDecoration(
-            border: InputBorder.none,
-            suffixIcon: IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                //Todo search button
-                // userListBloc.add(GetUsers(query: _searchController.text));
-              },
-            ),
-            hintText: 'Search ...'),
-      )),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          //TodoPushtoFormAddScreen
-        },
-      ),
-      body: Center(
-        child: RefreshIndicator(
-          key: _refreshIndicatorKey,
-          onRefresh: () async {
-            userBloc.add(GetUsers());
-          },
-          child: BlocBuilder<UserBloc, UserState>(
-            builder: (context, state) {
-              if (state is UserListLoaded) {
-                return Container(
-                  child: (state.rows.isNotEmpty
-                      ? ListView.builder(itemBuilder: (context, index) {
-                          List<UserList> listUser = state.rows;
-                          return _useCard(listUser);
-                        })
-                      : Center(
-                          child: Container(
-                            child: Text('Content Not Found'),
-                          ),
-                        )),
-                );
-              }
-              if (state is UserErrorState) {
-                return Center(
-                  child: Container(
-                    child: Text(
-                      '${state.message}',
-                      style: TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                );
-              }
-              return CircularProgressIndicator();
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Card _useCard(UserList listUser, BuildContext context) {
-  //   return Card(
-  //
-  //   );
-  // }
-
-
-  Widget _useCard(List<UserList> listUser) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      listUser[index].name,
-                      style: Theme.of(context).textTheme.title,
-                    ),
-                    Text(listUser[index].email),
-                    Text(listUser[index].id.toString()),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        FlatButton(
-                          onPressed: () {
-                            // TODO: do something in here
-                          },
-                          child: Text(
-                            "Delete",
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                        FlatButton(
-                          onPressed: () {
-                            // TODO: do something in here
-                          },
-                          child: Text(
-                            "Edit",
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+    return BlocProvider(
+      create: (context) => UserBloc(UserInitalezedState())..add(GetUsers()),
+      child: Scaffold(
+        appBar: AppBar(
+            title: TextField(
+          controller: _searchController,
+          autocorrect: false,
+          decoration: InputDecoration(
+              border: InputBorder.none,
+              suffixIcon: IconButton(
+                icon: Icon(Icons.search),
+                color: Colors.white,
+                onPressed: () {
+                  //Todo search button
+                  // userListBloc.add(GetUsers(query: _searchController.text));
+                },
               ),
-            ),
-          );
-        },
-        itemCount: listUser.length,
+              hintText: 'Search ...'),
+        )),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            //TodoPushtoFormAddScreen
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => FormAddScreen()));
+          },
+        ),
+        body: RefreshIndicator(
+            key: _refreshIndicatorKey,
+            onRefresh: () async {
+              UserBloc(UserInitalezedState())..add(GetUsers());
+            },
+            child: Center(
+              child: BlocBuilder<UserBloc, UserState>(
+                builder: (context, state) {
+                  if (state is Loading) {
+                    return CircularProgressIndicator();
+                  } else if (state is UserListLoaded) {
+                    List<UserList> listUser = state.rows;
+                    return Container(
+                      child: (state.rows.isNotEmpty
+                          ? CardListUser(listItem: listUser)
+                          : Text(
+                              'No Data In States',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                            )),
+                    );
+                  } else {
+                    return Center(
+                      child: Container(
+                        child: Text(
+                          'No Content InSide',
+                          style: TextStyle(
+                              color: Colors.red, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+            )),
       ),
     );
   }
-} //EndClass
+}

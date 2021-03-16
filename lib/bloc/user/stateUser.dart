@@ -10,7 +10,7 @@ abstract class UserState {
 
 class UserInitalezedState extends UserState {
   @override
-  List<UserList> get props => null;
+  List<UserList> get props => [];
 }
 
 class Loading extends UserState{}

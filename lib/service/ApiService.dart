@@ -5,8 +5,9 @@ import '../service/api_client/dio_client.dart';
 
 class ApiService {
   DioClient dioClient;
-  final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
-  // final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
+
+  // final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
+  final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
   ApiService() {
     var dio = Dio();
     dioClient = DioClient(_endpoint, dio);
@@ -44,13 +45,13 @@ class ApiService {
   }
 
   Future<bool> updateProfile(UserList data) async {
+    final String encodedData = json.encode(data);
     try {
-      final response = await dioClient.put('$_endpoint/users/${data.id}');
+      final response = await dioClient.put('$_endpoint/users/${data.id}', data: encodedData);
       return true;
     } catch (e) {
       return false;
     }
-
   }
 
   Future<bool> deleteProfile(UserList data) async {

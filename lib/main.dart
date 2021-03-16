@@ -4,7 +4,6 @@ import 'package:sportsapp/bloc/user/bloc.dart';
 import 'package:sportsapp/model/User/User.dart';
 import 'package:sportsapp/view/home.dart';
 import 'package:sportsapp/view/usersScreen/index.dart';
-import 'package:sportsapp/view/usersScreen/pageIndex.dart';
 
 void main() {
   // runApp(MyApp());
@@ -23,14 +22,15 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         // home: HomeScreen(),
-        // home: PageUserScreen(),
-        home: MultiBlocProvider(
-          providers: [
-            BlocProvider<UserBloc>(
-                create: (context) =>
-                    UserBloc(UserInitalezedState())..add(GetUsers()))
-          ],
-          child: PageUserScreen(),
-        ));
+        home: UserScreen()
+        // home: MultiBlocProvider(
+        //   providers: [
+        //     BlocProvider<UserBloc>(
+        //         create: (context) =>
+        //             UserBloc()..add(GetUsers()))
+        //   ],
+        //   child: UserScreen(),
+        // ));
+        );
   }
 }

@@ -13,6 +13,7 @@ class GetUsers extends UserEvent {
 
 class GetUpdate extends UserEvent {
   GetUpdate({UserList user}) : super(user: user);
+  List<UserList> get props => [];
 }
 
 class DeleteUser extends UserEvent {

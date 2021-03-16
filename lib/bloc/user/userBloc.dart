@@ -7,34 +7,40 @@ import 'bloc.dart';
 import 'dart:async';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
-  final _userRepository = UserRepository();
+  final userRepository = UserRepository();
 
-  UserBloc(UserState initialState) : super(null);
+  // UserRepository userRepository;
+
+  UserBloc(UserState UserInitalezedState) : super(null);
+
+  // UserBloc({this.userRepository}) : super(UserInitalezedState());
 
   UserState get initialState => UserInitalezedState();
-
 
   @override
   Stream<UserState> mapEventToState(UserEvent event) async* {
     yield Loading();
     if (event is GetUsers) {
       try {
-        UserResult resultUsers = await _userRepository.fetchAllUser();
+        UserResult resultUsers = await userRepository.fetchAllUser();
         List<UserList> responseRow = resultUsers.data.rows;
         yield UserListLoaded(rows: responseRow);
       } catch (e) {
-        yield UserErrorState(errorMessage: e.toString());
+        yield Loading();
+        // yield UserErrorState(errorMessage: e.toString());
       }
+
     } else if (event is DeleteUser) {
       try {
-        await _userRepository.fetchDeleteUsers(event.user);
+        await userRepository.fetchDeleteUsers(event.user);
         UserBloc(UserInitalezedState())..add(GetUsers());
       } catch (e) {
         yield UserErrorState(errorMessage: e.toString());
       }
     } else if (event is GetUpdate) {
-      List<UserList> responseRow = [];
-      yield UserListLoaded(rows: responseRow);
+      yield UserListLoaded(rows: []);
+      yield Loading();
+      print('usersEvent ${UserListLoaded().rows}');
     }
   }
 }
