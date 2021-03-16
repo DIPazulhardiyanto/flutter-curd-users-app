@@ -5,11 +5,11 @@ import 'package:sportsapp/view/addMenu.dart';
 
 class CardListUser extends StatelessWidget {
   final List<UserList> listItem;
+
   CardListUser({this.listItem});
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ListView.builder(
@@ -35,7 +35,8 @@ class CardListUser extends StatelessWidget {
                         FlatButton(
                           onPressed: () {
                             // TODO: do something in here
-                            UserBloc(UserInitalezedState())..add(DeleteUser(user: listUsers));
+                            UserBloc(UserInitalezedState())
+                              ..add(DeleteUser(user: listUsers));
                           },
                           child: Text(
                             "Delete",
