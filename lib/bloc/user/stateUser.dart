@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:sportsapp/model/User/User.dart';
 
-abstract class UserState {
-  final List<UserList> rows;
-  final String message;
+// abstract class UserState {
+//   final List<UserList> rows;
+//   final String message;
+//
+//   UserState({this.rows, this.message});
+// }
 
-  UserState({this.rows, this.message});
-}
+abstract class UserState {}
 
-class UserInitalezedState extends UserState {}
+class UserInitialState extends UserState {}
 
 class Loading extends UserState{}
 
+class SuccessSubmitUserState extends UserState{}
+
 class UserErrorState extends UserState {
-  UserErrorState({String errorMessage}) : super(message: errorMessage);
+  final String errorMessage;
+  UserErrorState({this.errorMessage});
+  // UserErrorState({String errorMessage}) : super(message: errorMessage);
 }
 
 class UserListLoaded extends UserState {
-  UserListLoaded({List<UserList> rows}) : super(rows: rows);
+  final List<UserList> listUser;
+  UserListLoaded({this.listUser});
+  // UserListLoaded({List<UserList> listUser}) : super(rows: rows);
 }

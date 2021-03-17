@@ -4,6 +4,7 @@ import 'package:sportsapp/bloc/user/bloc.dart';
 import 'package:sportsapp/model/User/User.dart';
 import 'package:sportsapp/repository/repository.dart';
 import 'package:sportsapp/service/ApiService.dart';
+import 'package:sportsapp/service/api_client/dio_client.dart';
 import 'package:sportsapp/view/addMenu.dart';
 import 'dart:convert';
 
@@ -23,15 +24,14 @@ class _UserScreenState extends State<UserScreen> {
   TextEditingController _searchController = new TextEditingController();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
-  final UserBloc _userBloc = UserBloc();
+  UserBloc _userBloc;
   final scaffoldState = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    // _userBloc = UserRepository();
-    _userBloc.add(GetUsers());
+    _userBloc = UserBloc();
+    _userBloc..add(GetUsers());
     super.initState();
-    // UserBloc()..add(GetUsers());
   }
 
   @override
@@ -77,16 +77,17 @@ class _UserScreenState extends State<UserScreen> {
             },
             child: Center(
               child: BlocBuilder<UserBloc, UserState>(
+                bloc: _userBloc,
                 builder: (context, state) {
                   if (state is Loading) {
                     return CircularProgressIndicator();
                   } else if (state is UserListLoaded) {
                     // List<UserList> listUser = state.rows;
-                    var listUser = state.rows;
+                    var listUser = state.listUser;
                     return Stack(
                       children: <Widget>[
                         Container(
-                          child: (state.rows.isNotEmpty
+                          child: (state.listUser.isNotEmpty
                               ? CardListUser(listItem: listUser)
                               : Text(
                                   'No Data In States',

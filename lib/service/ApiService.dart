@@ -29,6 +29,7 @@ class ApiService {
           .get('$_endpoint/users?page=1&size=30&email=&descending=true');
       return UserResult.fromJson(response);
     } catch (e) {
+      print('SERVICE !! ${e}');
       return e;
     }
   }

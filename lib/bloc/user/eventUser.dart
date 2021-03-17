@@ -11,6 +11,16 @@ class GetUsers extends UserEvent {
 
 class GetUpdate extends UserEvent {}
 
+class PutUser extends UserEvent {
+  final UserList user;
+  PutUser({this.user});
+}
+
+class PostUser extends UserEvent {
+  final UserList user;
+  PostUser({this.user});
+}
+
 class DeleteUser extends UserEvent {
   final UserList user;
   DeleteUser({this.user});

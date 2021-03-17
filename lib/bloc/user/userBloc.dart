@@ -3,14 +3,17 @@ import 'package:sportsapp/bloc/user/eventUser.dart';
 import 'package:sportsapp/bloc/user/stateUser.dart';
 import 'package:sportsapp/model/User/User.dart';
 import 'package:sportsapp/repository/repository.dart';
+import 'package:sportsapp/service/ApiService.dart';
 import 'bloc.dart';
 import 'dart:async';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
   final userRepository = UserRepository();
+  final apiService = ApiService();
 
+  // UserBloc(this.apiService) : super(UserInitialState());
   @override
-  UserState get initialState => UserInitalezedState();
+  UserState get initialState => UserInitialState();
 
   @override
   Stream<UserState> mapEventToState(UserEvent event) async* {
@@ -19,10 +22,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       try {
         UserResult resultUsers = await userRepository.fetchAllUser();
         List<UserList> responseRow = resultUsers.data.rows;
-        yield UserListLoaded(rows: responseRow);
+        yield UserListLoaded(listUser: responseRow);
       } catch (e) {
-        yield Loading();
-        // yield UserErrorState(errorMessage: e.toString());
+        yield UserErrorState(errorMessage: e.toString());
       }
 
     } else if (event is DeleteUser) {
@@ -33,9 +35,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         yield UserErrorState(errorMessage: e.toString());
       }
     } else if (event is GetUpdate) {
-      UserInitalezedState();
+      UserInitialState();
       yield Loading();
-      print('usersEvent ${UserListLoaded().rows}');
     }
   }
 }
+
