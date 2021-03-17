@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:sportsapp/bloc/user/bloc.dart';
 import 'package:sportsapp/model/User/User.dart';
 import 'package:sportsapp/view/addMenu.dart';
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 
 class CardListUser extends StatelessWidget {
   final List<UserList> listItem;
+  final UserBloc userBloc;
 
-  CardListUser({this.listItem});
+  CardListUser({this.listItem, this.userBloc});
+
+  void initState() {
+    userBloc.add(GetUsers());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +40,78 @@ class CardListUser extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
                         FlatButton(
-                          onPressed: () {
-                            // TODO: do something in here
-                            UserBloc()..add(DeleteUser(user: listUsers));
+                          child: Text('Delete'),
+                          textColor: Colors.red,
+                          onPressed: () async {
+                            var dialogConfirmDelete = Platform.isIOS
+                                ? await showCupertinoDialog<bool>(
+                              context: context,
+                              builder: (_) {
+                                return CupertinoAlertDialog(
+                                  title: Text('Warning'),
+                                  content: Text(
+                                    'Are you sure you want to delete ${listUsers.name}\'s data?',
+                                  ),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                      child: Text('Delete'),
+                                      onPressed: () {
+                                        Navigator.pop(
+                                            context, true);
+                                      },
+                                      isDestructiveAction: true,
+                                    ),
+                                    CupertinoDialogAction(
+                                      child: Text('Cancel'),
+                                      onPressed: () {
+                                        Navigator.pop(
+                                            context, false);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            )
+                                : await showDialog<bool>(
+                              context: context,
+                              builder: (_) {
+                                return AlertDialog(
+                                  title: Text('Warning'),
+                                  content: Text(
+                                    'Are you sure you want to delete ${listUsers.name}\'s data?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      child: Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                            color: Colors.red),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(
+                                            context, true);
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                            color: Colors.blue),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(
+                                            context, false);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            if (dialogConfirmDelete != null &&
+                                dialogConfirmDelete) {
+                              userBloc.add(DeleteUser(user: listUsers));
+                            }
                           },
-                          child: Text(
-                            "Delete",
-                            style: TextStyle(color: Colors.red),
-                          ),
                         ),
                         FlatButton(
                           onPressed: () {

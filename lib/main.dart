@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sportsapp/bloc/user/bloc.dart';
-import 'package:sportsapp/model/User/User.dart';
-import 'package:sportsapp/view/home.dart';
 import 'package:sportsapp/view/usersScreen/index.dart';
 
 void main() {
-  // runApp(MyApp());
   runApp(MyApp());
 }
 
@@ -21,16 +16,6 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        // home: HomeScreen(),
-        home: UserScreen()
-        // home: MultiBlocProvider(
-        //   providers: [
-        //     BlocProvider<UserBloc>(
-        //         create: (context) =>
-        //             UserBloc()..add(GetUsers()))
-        //   ],
-        //   child: UserScreen(),
-        // ));
-        );
+        home: UserScreen());
   }
 }

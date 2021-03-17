@@ -18,19 +18,23 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   @override
   Stream<UserState> mapEventToState(UserEvent event) async* {
     yield Loading();
+
     if (event is GetUsers) {
       try {
         UserResult resultUsers = await userRepository.fetchAllUser();
         List<UserList> responseRow = resultUsers.data.rows;
-        yield UserListLoaded(listUser: responseRow);
+        yield SuccessLoadUsers(responseRow);
       } catch (e) {
-        yield UserErrorState(errorMessage: e.toString());
+        FailureLoadAllUserState(e);
       }
 
     } else if (event is DeleteUser) {
       try {
         await userRepository.fetchDeleteUsers(event.user);
-        UserBloc().add(GetUsers());
+        yield UserErrorState(errorMessage: 'Success Delete ${event.user.name}');
+        UserResult resultUsers = await userRepository.fetchAllUser();
+        List<UserList> responseRow = resultUsers.data.rows;
+        yield SuccessLoadUsers(responseRow);
       } catch (e) {
         yield UserErrorState(errorMessage: e.toString());
       }
