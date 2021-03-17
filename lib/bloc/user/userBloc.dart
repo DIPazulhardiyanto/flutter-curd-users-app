@@ -9,12 +9,7 @@ import 'dart:async';
 class UserBloc extends Bloc<UserEvent, UserState> {
   final userRepository = UserRepository();
 
-  // UserRepository userRepository;
-
-  UserBloc(UserState UserInitalezedState) : super(null);
-
-  // UserBloc({this.userRepository}) : super(UserInitalezedState());
-
+  @override
   UserState get initialState => UserInitalezedState();
 
   @override
@@ -33,12 +28,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     } else if (event is DeleteUser) {
       try {
         await userRepository.fetchDeleteUsers(event.user);
-        UserBloc(UserInitalezedState())..add(GetUsers());
+        UserBloc().add(GetUsers());
       } catch (e) {
         yield UserErrorState(errorMessage: e.toString());
       }
     } else if (event is GetUpdate) {
-      yield UserListLoaded(rows: []);
+      UserInitalezedState();
       yield Loading();
       print('usersEvent ${UserListLoaded().rows}');
     }

@@ -1,21 +1,17 @@
-
+import 'package:meta/meta.dart';
 import 'package:sportsapp/model/User/User.dart';
 
-abstract class UserEvent {
-  final UserList user;
-  final String query;
-  UserEvent({this.user, this.query});
-}
+@immutable
+abstract class UserEvent {}
 
 class GetUsers extends UserEvent {
-  GetUsers({String query}) : super(query: query);
+  final String query;
+  GetUsers({this.query});
 }
 
-class GetUpdate extends UserEvent {
-  GetUpdate({UserList user}) : super(user: user);
-  List<UserList> get props => [];
-}
+class GetUpdate extends UserEvent {}
 
 class DeleteUser extends UserEvent {
-  DeleteUser({UserList user}) : super(user: user);
+  final UserList user;
+  DeleteUser({this.user});
 }

@@ -8,10 +8,7 @@ abstract class UserState {
   UserState({this.rows, this.message});
 }
 
-class UserInitalezedState extends UserState {
-  @override
-  List<UserList> get props => [];
-}
+class UserInitalezedState extends UserState {}
 
 class Loading extends UserState{}
 

@@ -19,15 +19,19 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  UserBloc userBloc;
+  // UserBloc userBloc;
   TextEditingController _searchController = new TextEditingController();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
+  final UserBloc _userBloc = UserBloc();
+  final scaffoldState = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
+    // _userBloc = UserRepository();
+    _userBloc.add(GetUsers());
     super.initState();
-    UserBloc(UserInitalezedState())..add(GetUsers());
+    // UserBloc()..add(GetUsers());
   }
 
   @override
@@ -37,9 +41,10 @@ class _UserScreenState extends State<UserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => UserBloc(UserInitalezedState())..add(GetUsers()),
+    return BlocProvider<UserBloc>(
+      create: (context) => _userBloc..add(GetUsers()),
       child: Scaffold(
+        key: scaffoldState,
         appBar: AppBar(
             title: TextField(
           controller: _searchController,
@@ -67,7 +72,8 @@ class _UserScreenState extends State<UserScreen> {
         body: RefreshIndicator(
             key: _refreshIndicatorKey,
             onRefresh: () async {
-              UserBloc(UserInitalezedState())..add(GetUsers());
+              setState(() {});
+              UserBloc().add(GetUsers());
             },
             child: Center(
               child: BlocBuilder<UserBloc, UserState>(
@@ -75,16 +81,21 @@ class _UserScreenState extends State<UserScreen> {
                   if (state is Loading) {
                     return CircularProgressIndicator();
                   } else if (state is UserListLoaded) {
-                    List<UserList> listUser = state.rows;
-                    return Container(
-                      child: (state.rows.isNotEmpty
-                          ? CardListUser(listItem: listUser)
-                          : Text(
-                              'No Data In States',
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold),
-                            )),
+                    // List<UserList> listUser = state.rows;
+                    var listUser = state.rows;
+                    return Stack(
+                      children: <Widget>[
+                        Container(
+                          child: (state.rows.isNotEmpty
+                              ? CardListUser(listItem: listUser)
+                              : Text(
+                                  'No Data In States',
+                                  style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                        )
+                      ],
                     );
                   } else {
                     return Center(

@@ -35,8 +35,7 @@ class CardListUser extends StatelessWidget {
                         FlatButton(
                           onPressed: () {
                             // TODO: do something in here
-                            UserBloc(UserInitalezedState())
-                              ..add(DeleteUser(user: listUsers));
+                            UserBloc()..add(DeleteUser(user: listUsers));
                           },
                           child: Text(
                             "Delete",
