@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:sportsapp/model/Request/paramsUser.dart';
 import 'package:sportsapp/model/User/User.dart';
 import 'dart:convert';
 import '../service/api_client/dio_client.dart';
@@ -6,8 +7,8 @@ import '../service/api_client/dio_client.dart';
 class ApiService {
   DioClient dioClient;
 
-  // final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
-  final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
+  final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
+  // final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
   ApiService() {
     var dio = Dio();
     dioClient = DioClient(_endpoint, dio);
@@ -23,13 +24,13 @@ class ApiService {
     }
   }
 
-  Future<UserResult> getUsers() async {
+
+  Future<UserResult> getUsers(UserParams data) async {
     try {
       final response = await dioClient
-          .get('$_endpoint/users?page=1&size=30&email=&descending=true');
+          .get('$_endpoint/users?page=1&size=${data.size}&email=${data.search}&descending=true');
       return UserResult.fromJson(response);
     } catch (e) {
-      print('SERVICE !! ${e}');
       return e;
     }
   }
