@@ -21,9 +21,12 @@ class _AddEditScreenUserState extends State<AddEditScreenUser> {
   final _scaffoldState = GlobalKey<ScaffoldState>();
   UserBloc userBloc;
 
+  /* All Variables Declaration */
+
   bool isSuccess = false;
   bool successSubmit = false;
   bool _isLoading = false;
+  static bool obscureTextPassword = true;
   ApiService _apiService = ApiService();
   bool _isFieldNameValid;
   bool _isFieldEmailValid;
@@ -31,6 +34,124 @@ class _AddEditScreenUserState extends State<AddEditScreenUser> {
   TextEditingController _controllerName = TextEditingController();
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerPassword = TextEditingController();
+
+  /* All Widgets Declaration */
+
+  Widget _buildWidgetLoading() {
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (_, state) {
+        if (state is Loading) {
+          return Container(
+            color: Colors.black.withOpacity(.5),
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: Platform.isIOS
+                  ? CupertinoActivityIndicator()
+                  : CircularProgressIndicator(),
+            ),
+          );
+        } else {
+          return Container();
+        }
+      },
+    );
+  }
+
+  Widget nameField() {
+    return TextField(
+      controller: _controllerName,
+      keyboardType: TextInputType.text,
+      decoration: InputDecoration(
+          labelText: 'Full Name',
+          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.blue), borderRadius: BorderRadius.circular(15)),
+          prefixIcon: Padding(
+            padding: EdgeInsets.only(left: 5.0),
+            child: Icon(
+              Icons.person,
+              color: Colors.blue,
+            ),
+          ),
+          errorText: _isFieldNameValid == null || _isFieldNameValid
+              ? null
+              : "Fullname Is Required",
+          contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(19.0))),
+      onChanged: (value) {
+        bool isFieldValid = value.trim().isNotEmpty;
+        if (isFieldValid != _isFieldNameValid) {
+          setState(() => _isFieldNameValid = isFieldValid);
+        }
+      },
+    );
+  }
+
+  Widget emailField() {
+    return TextField(
+      controller: _controllerEmail,
+      keyboardType: TextInputType.emailAddress,
+      decoration: InputDecoration(
+        labelText: 'Email',
+        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.blue), borderRadius: BorderRadius.circular(15)),
+        prefixIcon: Padding(
+          padding: EdgeInsets.only(left: 5.0),
+          child: Icon(
+            Icons.email,
+            color: Colors.blue,
+          ),
+        ),
+          errorText: _isFieldEmailValid == null || _isFieldEmailValid
+              ? null
+              : "Email Is Required",
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(19.0)),),
+      onChanged: (value) {
+        bool isFieldValid = value.trim().isNotEmpty;
+        if (isFieldValid != _isFieldEmailValid) {
+          setState(() => _isFieldEmailValid = isFieldValid);
+        }
+      },
+    );
+  }
+
+  Widget passwordField() {
+    return TextField(
+      controller: _controllerPassword,
+      keyboardType: TextInputType.visiblePassword,
+      obscureText: obscureTextPassword,
+      decoration: InputDecoration(
+        labelText: 'Password',
+        errorText: _isFieldEmailValid == null || _isFieldEmailValid
+            ? null
+            : "Email Is Required",
+        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.blue), borderRadius: BorderRadius.circular(15)),
+        prefixIcon: Padding(
+          padding: EdgeInsets.only(left: 5.0),
+          child: Icon(
+            Icons.lock,
+            color: Colors.blue,
+          ),
+        ),
+        suffixIcon: InkWell(
+          onTap: () {
+            passwordObscureToggles();
+          },
+          child: (obscureTextPassword)
+              ? Icon(Icons.visibility_off)
+              : Icon(Icons.visibility),
+        ),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(19.0)),
+      ),
+
+      onChanged: (value) {
+        bool isFieldValid = value.trim().isNotEmpty;
+        if (isFieldValid != _isFieldPasswordValid) {
+          setState(() => _isFieldPasswordValid = isFieldValid);
+        }
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -74,21 +195,28 @@ class _AddEditScreenUserState extends State<AddEditScreenUser> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
-                          nameField(),
-                          emailField(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: nameField(),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 7),
+                            child: emailField(),
+                          ),
+
                           widget.userList == null
-                              ? passwordField()
+                              ? Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 5),
+                                child: passwordField(),
+                              )
                               : Container(),
                           Padding(
                             padding: EdgeInsets.only(top: 8.0),
                             child: RaisedButton(
                               onPressed: () async {
-                                if (_isFieldNameValid == null ||
-                                    _isFieldEmailValid == null ||
-                                    _isFieldPasswordValid == null ||
-                                    !_isFieldNameValid ||
-                                    !_isFieldEmailValid ||
-                                    !_isFieldPasswordValid) {
+                                // Validating Form Input First
+                                if (validateFormInput()) {
                                   _scaffoldState.currentState.showSnackBar(
                                     SnackBar(
                                       content: Text("Please fill all field"),
@@ -133,11 +261,10 @@ class _AddEditScreenUserState extends State<AddEditScreenUser> {
                                           return AlertDialog(
                                             title: Text('Warning'),
                                             content: Container(
-                                              child: Text(
-                                                widget.userList == null ?
-                                                'Are you sure you want to ADD NEW user :  ${name}\'s ?' :
-                                                'Are you sure you want to UPDATE user :  ${name}\'s ?'
-                                              ),
+                                              child: Text(widget.userList ==
+                                                      null
+                                                  ? 'Are you sure you want to ADD NEW user :  ${name}\'s ?'
+                                                  : 'Are you sure you want to UPDATE user :  ${name}\'s ?'),
                                             ),
                                             actions: [
                                               TextButton(
@@ -172,43 +299,10 @@ class _AddEditScreenUserState extends State<AddEditScreenUser> {
                                       password: password);
 
                                   if (widget.userList == null) {
-                                    _apiService
-                                        .createProfile(listUser.toJson())
-                                        .then((isSuccess) {
-                                      if (isSuccess) {
-                                        _scaffoldState.currentState
-                                            .showSnackBar(SnackBar(
-                                            content:
-                                            Text("Add New Users Success")));
-                                            waitingFine();
-
-                                      } else {
-                                        _scaffoldState.currentState
-                                            .showSnackBar(SnackBar(
-                                                content:
-                                                    Text("Submit Failed")));
-                                      }
-                                    });
-
+                                    onSaveUser(listUser);
                                   } else {
-                                    listUser.id = widget.userList.id;
-                                    _apiService.updateProfile(listUser).then((isSuccess) {
-                                      if (isSuccess) {
-                                        _scaffoldState.currentState
-                                            .showSnackBar(SnackBar(
-                                            content:
-                                            Text("Update Users Success")));
-                                            waitingFine();
-                                      } else {
-                                        _scaffoldState.currentState
-                                            .showSnackBar(SnackBar(
-                                                content:
-                                                    Text("Update Failed")));
-                                      }
-                                    });
+                                    onUpdateUser(listUser);
                                   }
-
-
                                 }
                               },
                               child: Text(
@@ -241,84 +335,58 @@ class _AddEditScreenUserState extends State<AddEditScreenUser> {
                 ))));
   }
 
-  waitingFine() async {
+  /* All Methods Declaration */
+
+  void passwordObscureToggles() {
+    print(obscureTextPassword);
+    setState(() {
+      obscureTextPassword = !obscureTextPassword;
+    });
+  }
+
+  bool validateFormInput() {
+    if (_isFieldNameValid == null ||
+        _isFieldEmailValid == null ||
+        _isFieldPasswordValid == null ||
+        !_isFieldNameValid ||
+        !_isFieldEmailValid ||
+        !_isFieldPasswordValid) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future waitingFine() async {
     await Future.delayed(Duration(seconds: 3));
     Navigator.pop(context, true);
   }
 
-
-  Widget _buildWidgetLoading() {
-    return BlocBuilder<UserBloc, UserState>(
-      builder: (_, state) {
-        if (state is Loading) {
-          return Container(
-            color: Colors.black.withOpacity(.5),
-            width: double.infinity,
-            height: double.infinity,
-            child: Center(
-              child: Platform.isIOS
-                  ? CupertinoActivityIndicator()
-                  : CircularProgressIndicator(),
-            ),
-          );
-        } else {
-          return Container();
-        }
-      },
-    );
+  void onSaveUser(dataUser) {
+    _apiService.createProfile(dataUser.toJson()).then((isSuccess) {
+      if (isSuccess) {
+        _scaffoldState.currentState
+            .showSnackBar(SnackBar(content: Text("Add New Users Success")));
+        waitingFine();
+      } else {
+        _scaffoldState.currentState
+            .showSnackBar(SnackBar(content: Text("Submit Failed")));
+      }
+    });
   }
 
-  Widget nameField() {
-    return TextField(
-      controller: _controllerName,
-      keyboardType: TextInputType.text,
-      decoration: InputDecoration(
-          labelText: 'Fullname',
-          errorText: _isFieldNameValid == null || _isFieldNameValid
-              ? null
-              : "Fullname Is Required"),
-      onChanged: (value) {
-        bool isFieldValid = value.trim().isNotEmpty;
-        if (isFieldValid != _isFieldNameValid) {
-          setState(() => _isFieldNameValid = isFieldValid);
-        }
-      },
-    );
+  void onUpdateUser(dataUser) {
+    dataUser.id = widget.userList.id;
+    _apiService.updateProfile(dataUser).then((isSuccess) {
+      if (isSuccess) {
+        _scaffoldState.currentState
+            .showSnackBar(SnackBar(content: Text("Update Users Success")));
+        waitingFine();
+      } else {
+        _scaffoldState.currentState
+            .showSnackBar(SnackBar(content: Text("Update Failed")));
+      }
+    });
   }
 
-  Widget emailField() {
-    return TextField(
-      controller: _controllerEmail,
-      keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(
-          labelText: 'Email',
-          errorText: _isFieldEmailValid == null || _isFieldEmailValid
-              ? null
-              : "Email Is Required"),
-      onChanged: (value) {
-        bool isFieldValid = value.trim().isNotEmpty;
-        if (isFieldValid != _isFieldEmailValid) {
-          setState(() => _isFieldEmailValid = isFieldValid);
-        }
-      },
-    );
-  }
-
-  Widget passwordField() {
-    return TextField(
-      controller: _controllerPassword,
-      keyboardType: TextInputType.visiblePassword,
-      decoration: InputDecoration(
-          labelText: 'Password',
-          errorText: _isFieldPasswordValid == null || _isFieldPasswordValid
-              ? null
-              : "Password Is Required"),
-      onChanged: (value) {
-        bool isFieldValid = value.trim().isNotEmpty;
-        if (isFieldValid != _isFieldPasswordValid) {
-          setState(() => _isFieldPasswordValid = isFieldValid);
-        }
-      },
-    );
-  }
 } //EndClass
