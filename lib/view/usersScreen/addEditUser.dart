@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,26 +7,22 @@ import 'package:sportsapp/bloc/user/bloc.dart';
 import 'package:sportsapp/model/User/User.dart';
 import 'package:sportsapp/service/ApiService.dart';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 
-final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
-
-class AddScreenUser extends StatefulWidget {
+class AddEditScreenUser extends StatefulWidget {
   UserList userList;
 
-  AddScreenUser({this.userList});
+  AddEditScreenUser({this.userList});
 
   @override
-  _AddScreenUserState createState() => _AddScreenUserState();
+  _AddEditScreenUserState createState() => _AddEditScreenUserState();
 }
 
-class _AddScreenUserState extends State<AddScreenUser> {
-  final scaffoldState = GlobalKey<ScaffoldState>();
+class _AddEditScreenUserState extends State<AddEditScreenUser> {
+  final _scaffoldState = GlobalKey<ScaffoldState>();
   UserBloc userBloc;
 
-  var isSuccess = false;
+  bool isSuccess = false;
   bool successSubmit = false;
-
   bool _isLoading = false;
   ApiService _apiService = ApiService();
   bool _isFieldNameValid;
@@ -58,7 +56,7 @@ class _AddScreenUserState extends State<AddScreenUser> {
           return true;
         },
         child: Scaffold(
-            key: scaffoldState,
+            key: _scaffoldState,
             appBar: AppBar(
               iconTheme: IconThemeData(color: Colors.white),
               title: Text(
@@ -70,6 +68,7 @@ class _AddScreenUserState extends State<AddScreenUser> {
                 create: (context) => userBloc,
                 child: Stack(
                   children: <Widget>[
+                    _buildWidgetLoading(),
                     Padding(
                       padding: EdgeInsets.all(16.0),
                       child: Column(
@@ -135,7 +134,9 @@ class _AddScreenUserState extends State<AddScreenUser> {
                                             title: Text('Warning'),
                                             content: Container(
                                               child: Text(
-                                                'Are you sure you want to add new user :  ${name}\'s ?',
+                                                widget.userList == null ?
+                                                'Are you sure you want to ADD NEW user :  ${name}\'s ?' :
+                                                'Are you sure you want to UPDATE user :  ${name}\'s ?'
                                               ),
                                             ),
                                             actions: [
@@ -175,9 +176,12 @@ class _AddScreenUserState extends State<AddScreenUser> {
                                         .createProfile(listUser.toJson())
                                         .then((isSuccess) {
                                       if (isSuccess) {
-                                        userBloc.add(GetUpdate());
-                                        Navigator.pop(context, true);
-                                        // Navigator.pop(_scaffoldState.currentState.context);
+                                        _scaffoldState.currentState
+                                            .showSnackBar(SnackBar(
+                                            content:
+                                            Text("Add New Users Success")));
+                                            waitingFine();
+
                                       } else {
                                         _scaffoldState.currentState
                                             .showSnackBar(SnackBar(
@@ -185,25 +189,26 @@ class _AddScreenUserState extends State<AddScreenUser> {
                                                     Text("Submit Failed")));
                                       }
                                     });
+
                                   } else {
                                     listUser.id = widget.userList.id;
                                     _apiService.updateProfile(listUser).then((isSuccess) {
                                       if (isSuccess) {
-                                        userBloc.add(GetUsers());
-                                        Navigator.pop(_scaffoldState
-                                            .currentState.context);
+                                        _scaffoldState.currentState
+                                            .showSnackBar(SnackBar(
+                                            content:
+                                            Text("Update Users Success")));
+                                            waitingFine();
                                       } else {
                                         _scaffoldState.currentState
                                             .showSnackBar(SnackBar(
                                                 content:
-                                                    Text("update Failed")));
+                                                    Text("Update Failed")));
                                       }
                                     });
                                   }
 
 
-                                  // userBloc.add(GetUpdate());
-                                  // Navigator.pop(context, true);
                                 }
                               },
                               child: Text(
@@ -233,10 +238,34 @@ class _AddScreenUserState extends State<AddScreenUser> {
                       ),
                     )
                   ],
-                ))
-            ));
+                ))));
+  }
+
+  waitingFine() async {
+    await Future.delayed(Duration(seconds: 3));
+    Navigator.pop(context, true);
+  }
 
 
+  Widget _buildWidgetLoading() {
+    return BlocBuilder<UserBloc, UserState>(
+      builder: (_, state) {
+        if (state is Loading) {
+          return Container(
+            color: Colors.black.withOpacity(.5),
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: Platform.isIOS
+                  ? CupertinoActivityIndicator()
+                  : CircularProgressIndicator(),
+            ),
+          );
+        } else {
+          return Container();
+        }
+      },
+    );
   }
 
   Widget nameField() {

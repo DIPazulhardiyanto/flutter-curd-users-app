@@ -4,8 +4,7 @@ import 'package:sportsapp/bloc/user/bloc.dart';
 import 'package:sportsapp/bloc/user/userBloc.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:sportsapp/view/addMenu.dart';
-import 'package:sportsapp/view/usersScreen/addMenu.dart';
+import 'package:sportsapp/view/usersScreen/addEditUser.dart';
 import 'package:sportsapp/view/usersScreen/cardListUser.dart';
 
 class UserScreen extends StatefulWidget {
@@ -30,94 +29,87 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: scaffoldState,
-        appBar: AppBar(
-            title: TextField(
-          autofocus: false,
-          controller: _searchController,
-          autocorrect: false,
-          decoration: InputDecoration(
-              border: InputBorder.none,
-              suffixIcon: IconButton(
-                icon: Icon(Icons.search),
-                color: Colors.white,
-                onPressed: () {
-                  //Todo search button
-                  // userListBloc.add(GetUsers(query: _searchController.text));
-                },
-              ),
-              hintStyle: TextStyle(color: Colors.white),
-              hintText: 'Search ..'),
-        )),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            //TodoPushtoFormAddScreen
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => AddScreenUser()));
-          },
-        ),
-        body: RefreshIndicator(
-          key: _refreshIndicatorKey,
-          onRefresh: () async {
-            userBloc.add(GetUsers());
-            // userBloc.add(GetUpdate());
-            setState(() {});
-          },
-          child: BlocProvider<UserBloc>(
-            create: (context) => userBloc,
-            child:
-                BlocListener<UserBloc, UserState>(listener: (context, state) {
-              if (state is UserErrorState) {
-                scaffoldState.currentState
-                    .showSnackBar(SnackBar(content: Text(state.errorMessage)));
-              }
-            }, child: BlocBuilder<UserBloc, UserState>(
-              builder: (context, state) {
-                if (state is Loading) {
-                  return Center(
-                    child: Platform.isIOS
-                        ? CupertinoActivityIndicator()
-                        : CircularProgressIndicator(),
-                  );
-                } else if (state is FailureLoadAllUserState) {
-                  return Center(
-                    child: Text(state.errorMessage),
-                  );
-                } else if (state is SuccessLoadUsers) {
-                  var listUsers = state.listUser;
-                  return CardListUser(
-                    listItem: listUsers,
-                    userBloc: userBloc,
-                  );
-                } else if (state is EmptyDataLoadUsers) {
-                  return Center(
-                    child: Container(
-                      child: Text(
-                        'No Data ...',
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                  );
-                }
+      key: scaffoldState,
+      appBar: AppBar(
+          title: TextField(
+        autofocus: false,
+        controller: _searchController,
+        autocorrect: false,
+        decoration: InputDecoration(
+            border: InputBorder.none,
+            suffixIcon: IconButton(
+              icon: Icon(Icons.search),
+              color: Colors.white,
+              onPressed: () {
+                //Todo search button
+                // userListBloc.add(GetUsers(query: _searchController.text));
               },
-            )),
-          ),
-        ));
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    setState(() {});
-    super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    setState(() {
-      userBloc.add(GetUsers());
-    });
+            ),
+            hintStyle: TextStyle(color: Colors.white),
+            hintText: 'Search ..'),
+      )),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () async {
+          var result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AddEditScreenUser(),
+            ),
+          );
+          if (result != null) {
+            userBloc.add(GetUsers());
+          }
+        },
+      ),
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: () async {
+          userBloc.add(GetUsers());
+          // userBloc.add(GetUpdate());
+          setState(() {});
+        },
+        child: BlocProvider<UserBloc>(
+          create: (context) => userBloc,
+          child: BlocListener<UserBloc, UserState>(listener: (context, state) {
+            if (state is UserErrorState) {
+              scaffoldState.currentState
+                  .showSnackBar(SnackBar(content: Text(state.errorMessage)));
+            }
+          }, child: BlocBuilder<UserBloc, UserState>(
+            builder: (context, state) {
+              if (state is Loading) {
+                return Center(
+                  child: Platform.isIOS
+                      ? CupertinoActivityIndicator()
+                      : CircularProgressIndicator(),
+                );
+              } else if (state is FailureLoadAllUserState) {
+                return Center(
+                  child: Text(state.errorMessage),
+                );
+              } else if (state is SuccessLoadUsers) {
+                var listUsers = state.listUser;
+                return CardListUser(
+                  listItem: listUsers,
+                  userBloc: userBloc,
+                );
+              } else if (state is EmptyDataLoadUsers) {
+                return Center(
+                  child: Container(
+                    child: Text(
+                      'No Data ...',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            },
+          )),
+        ),
+      ),
+    );
   }
 }

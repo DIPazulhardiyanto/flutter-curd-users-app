@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sportsapp/bloc/user/bloc.dart';
 import 'package:sportsapp/model/User/User.dart';
-import 'package:sportsapp/view/addMenu.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:sportsapp/view/usersScreen/addEditUser.dart';
 
 class CardListUser extends StatelessWidget {
   final List<UserList> listItem;
@@ -116,11 +116,7 @@ class CardListUser extends StatelessWidget {
                         FlatButton(
                           onPressed: () {
                             // TODO: do something in here
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        FormAddScreen(userList: listUsers)));
+                            onChangesEdit(context, listUsers);
                           },
                           child: Text(
                             "Edit",
@@ -138,5 +134,16 @@ class CardListUser extends StatelessWidget {
         itemCount: listItem.length,
       ),
     );
+  }
+
+  onChangesEdit(context, listUsers) async {
+    var result = await Navigator.push(context,
+      MaterialPageRoute(
+        builder: (_) => AddEditScreenUser(userList: listUsers),
+      ),
+    );
+    if (result != null) {
+      userBloc.add(GetUsers());
+    }
   }
 }
