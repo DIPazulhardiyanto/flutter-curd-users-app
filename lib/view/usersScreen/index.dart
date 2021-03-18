@@ -5,6 +5,7 @@ import 'package:sportsapp/bloc/user/userBloc.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:sportsapp/view/addMenu.dart';
+import 'package:sportsapp/view/usersScreen/addMenu.dart';
 import 'package:sportsapp/view/usersScreen/cardListUser.dart';
 
 class UserScreen extends StatefulWidget {
@@ -53,13 +54,14 @@ class _UserScreenState extends State<UserScreen> {
           onPressed: () {
             //TodoPushtoFormAddScreen
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => FormAddScreen()));
+                MaterialPageRoute(builder: (context) => AddScreenUser()));
           },
         ),
         body: RefreshIndicator(
           key: _refreshIndicatorKey,
           onRefresh: () async {
             userBloc.add(GetUsers());
+            // userBloc.add(GetUpdate());
             setState(() {});
           },
           child: BlocProvider<UserBloc>(
@@ -88,10 +90,13 @@ class _UserScreenState extends State<UserScreen> {
                     listItem: listUsers,
                     userBloc: userBloc,
                   );
-                } else {
+                } else if (state is EmptyDataLoadUsers) {
                   return Center(
                     child: Container(
-                      child: Text('Not Found'),
+                      child: Text(
+                        'No Data ...',
+                        style: TextStyle(color: Colors.blue),
+                      ),
                     ),
                   );
                 }
@@ -99,5 +104,20 @@ class _UserScreenState extends State<UserScreen> {
             )),
           ),
         ));
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    setState(() {});
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    setState(() {
+      userBloc.add(GetUsers());
+    });
   }
 }

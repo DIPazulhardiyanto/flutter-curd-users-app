@@ -14,6 +14,8 @@ class UserInitialState extends UserState {}
 
 class Loading extends UserState{}
 
+class EmptyDataLoadUsers extends UserState{}
+
 class SuccessSubmitUserState extends UserState{}
 
 class SuccessLoadUsers extends UserState{

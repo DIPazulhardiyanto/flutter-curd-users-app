@@ -18,14 +18,26 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   @override
   Stream<UserState> mapEventToState(UserEvent event) async* {
     yield Loading();
-
     if (event is GetUsers) {
       try {
         UserResult resultUsers = await userRepository.fetchAllUser();
         List<UserList> responseRow = resultUsers.data.rows;
-        yield SuccessLoadUsers(responseRow);
+        if (resultUsers.data.totalItems > 0) {
+          yield SuccessLoadUsers(responseRow);
+        } else {
+          yield EmptyDataLoadUsers();
+        }
       } catch (e) {
         FailureLoadAllUserState(e);
+      }
+
+    } else if (event is PostUser) {
+      try{
+        bool  response =  await userRepository.fetchCreateUsers(event.user);
+        yield SuccessSubmitUserState();
+
+      } catch(e) {
+        yield UserErrorState(errorMessage: e.toString());
       }
 
     } else if (event is DeleteUser) {
@@ -39,8 +51,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         yield UserErrorState(errorMessage: e.toString());
       }
     } else if (event is GetUpdate) {
-      UserInitialState();
       yield Loading();
+      print('JALAN ${event}');
+      UserResult resultUsers = await userRepository.fetchAllUser();
+      List<UserList> responseRow = resultUsers.data.rows;
+      yield SuccessLoadUsers(responseRow);
     }
   }
 }
