@@ -7,8 +7,8 @@ import '../service/api_client/dio_client.dart';
 class ApiService {
   DioClient dioClient;
 
-  final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
-  // final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
+  // final String _endpoint = "http://192.168.100.5:8000/auth"; //Home
+  final String _endpoint = "http://192.168.20.232:8000/auth"; //Office
   ApiService() {
     var dio = Dio();
     dioClient = DioClient(_endpoint, dio);
